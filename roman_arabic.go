@@ -1,6 +1,8 @@
 package main
 
-import "strings"
+import (
+	"strings"
+)
 
 type romanNumeral struct {
 	value  int
@@ -36,4 +38,55 @@ func ConvertToRoman(arabic int) string {
 	}
 
 	return roman.String()
+}
+
+type decrementSet struct {
+	prevChar string
+	currChar string
+}
+
+type decrementSets []decrementSet
+
+var dSets = decrementSets{
+	{prevChar: "V", currChar: "I"},
+	{prevChar: "X", currChar: "I"},
+	{prevChar: "L", currChar: "X"},
+	{prevChar: "C", currChar: "X"},
+	{prevChar: "D", currChar: "C"},
+	{prevChar: "M", currChar: "C"},
+}
+
+func (d decrementSets) contains(s decrementSet) bool {
+	for _, item := range d {
+		if item == s {
+			return true
+		}
+	}
+	return false
+}
+
+func needToDecrement(prevChar string, currChar string) bool {
+
+	return dSets.contains(decrementSet{prevChar: prevChar, currChar: currChar})
+}
+
+// ConvertToArabic takes roman symbol and return roman numeral
+func ConvertToArabic(roman string) int {
+	var result int
+	var prevChar string
+	for i := len(roman) - 1; i >= 0; i-- {
+		character := string(roman[i])
+		for _, n := range romanNumerals {
+			if needToDecrement(prevChar, character) && n.symbol == character {
+				result -= n.value
+			} else if n.symbol == character {
+				result += n.value
+			}
+		}
+
+		if i > 0 {
+			prevChar = character
+		}
+	}
+	return result
 }
